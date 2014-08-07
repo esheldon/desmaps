@@ -37,22 +37,23 @@ def example1():
     # now we can interpolate a maglimit healpix map to get neff
     hmap='/astro/u/esheldon/masks/des/sva1-gold/sva1_gold_1.0_nside4096-64_nest_i_weights.fits'
     print("reading maglim map:",hmap)
-    maglim_map = fitsio.read(hmap, columns='i').ravel()
+    maglim_map,hdr = fitsio.read(hmap, columns='I', header=True)
+    maglim_map=maglim_map.ravel()
 
     print("interpolating to get neff for maglim map")
     w,=numpy.where(maglim_map > 0)
     neff_interpolated = numpy.interp(maglim_map[w], maglims, neffdata['neff'])
 
 
-    # ridiculous healpix standard file format
+    # convert to strange healpix standard file format
     print("creating output")
     nrows=maglim_map.size/1024
     neff_map = numpy.zeros(nrows, dtype=[('i','f4',1024)])
     neff_flat = neff_map['i'].ravel()
     neff_flat[w] = neff_interpolated.astype('f4')
 
-    pars['ordering'] ="nested"
-    pars['nside'] = 4096
+    pars['ordering'] = hdr['ordering'].strip()
+    pars['nside']    = hdr['nside']
 
     neff_file="sva1_gold_1.0_nside4096-64_nest_i_neff.fits"
     print("writing:",neff_file)
