@@ -2,7 +2,6 @@ from __future__ import print_function
 import desmaps
 import fitsio
 import numpy
-import healpix
 
 def example1():
     pars={'nofm_nbin':200,
